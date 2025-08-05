@@ -53,7 +53,7 @@ export class AuthService extends PrismaClient implements OnModuleInit {
 
   async registerUser(dto: RegisterUserDto) {
 
-    const { email, password, firstName, lastName, dni, phone, address } = dto
+    const { email, password, firstName, lastName, dni, phone, address, createBy } = dto
     try {
 
       const userExist = await this.user.findUnique({
@@ -89,6 +89,7 @@ export class AuthService extends PrismaClient implements OnModuleInit {
           email: dto.email,
           password: brcypt.hashSync(password, 10),
           roleId :roleId!,
+          createBy:createBy,
           profile: {
             create: {
               firstName: dto.firstName,

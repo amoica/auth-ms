@@ -39,4 +39,8 @@ export class RegisterUserDto {
     @IsOptional()
     @IsNumber()
     roleId?: number; // podés omitirlo y setear uno por defecto si no viene
+
+    @IsOptional()
+    @IsNumber()
+    createBy?: number
 }

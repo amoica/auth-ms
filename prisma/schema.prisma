@@ -13,46 +13,58 @@ datasource db {
   url      = env("DATABASE_URL_AUTH")
 }
 
-
 model User {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
-  password  String
-  roleId    Int
-  role      Role      @relation(fields: [roleId], references: [id])
-  profile   UserProfile?
+  id       Int          @id @default(autoincrement())
+  email    String       @unique
+  password String
+  roleId   Int
+  role     Role         @relation(fields: [roleId], references: [id])
+  profile  UserProfile?
+  createBy Int?
+  estado   Boolean      @default(true)
 }
 
 model UserProfile {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @unique
-  user      User     @relation(fields: [userId], references: [id])
+  id        Int     @id @default(autoincrement())
+  userId    Int     @unique
+  user      User    @relation(fields: [userId], references: [id])
   firstName String?
   lastName  String?
   dni       String?
   phone     String?
   address   String?
-}
-
-model Role {
-  id        Int         @id @default(autoincrement())
-  name      String      @unique
-  users     User[]
-  permissions RolePermission[]
+  avatarUrl String?
 }
 
 model Permission {
-  id        Int         @id @default(autoincrement())
-  name      String      @unique
-  roles     RolePermission[]
+  id          Int              @id @default(autoincrement())
+  name        String           @unique
+  description String?
+  category    String // Ej: "Artículos", "Órdenes", "Seguridad"
+  module      String? // Opcional: agrupación por módulo
+  roles       RolePermission[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model Role {
+  id          Int              @id @default(autoincrement())
+  name        String           @unique
+  description String?
+  isSystem    Boolean          @default(false) // Para roles predefinidos
+  users       User[]
+  permissions RolePermission[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 }
 
 model RolePermission {
-  id           Int         @id @default(autoincrement())
+  id           Int        @id @default(autoincrement())
+  role         Role       @relation(fields: [roleId], references: [id])
   roleId       Int
+  permission   Permission @relation(fields: [permissionId], references: [id])
   permissionId Int
-  role         Role        @relation(fields: [roleId], references: [id])
-  permission   Permission  @relation(fields: [permissionId], references: [id])
+  createdAt    DateTime   @default(now())
 
   @@unique([roleId, permissionId])
 }
