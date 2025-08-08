@@ -15,31 +15,31 @@ export class AuthService extends PrismaClient implements OnModuleInit {
 
   constructor(
     private readonly jwtService: JwtService
-  ){
+  ) {
     super();
   }
 
-  async signJWT( payload: JwtPayload){
+  async signJWT(payload: JwtPayload) {
     return this.jwtService.sign(payload)
   }
 
-  async verifyToken(token:string){
+  async verifyToken(token: string) {
 
     try {
-      const {sub, iat, exp, ...user} = this.jwtService.verify(token, {
+      const { sub, iat, exp, ...user } = this.jwtService.verify(token, {
         secret: envs.jwtSecret
       });
 
       return {
-        user:user,
+        user: user,
         token: await this.signJWT(user)
       }
 
     } catch (error) {
-        throw new RpcException({
-          status: 401,
-          message: 'Token invalido'
-        })
+      throw new RpcException({
+        status: 401,
+        message: 'Token invalido'
+      })
     }
   }
 
@@ -88,8 +88,8 @@ export class AuthService extends PrismaClient implements OnModuleInit {
         data: {
           email: dto.email,
           password: brcypt.hashSync(password, 10),
-          roleId :roleId!,
-          createBy:createBy,
+          roleId: roleId!,
+          createBy: createBy,
           profile: {
             create: {
               firstName: dto.firstName,
@@ -102,19 +102,25 @@ export class AuthService extends PrismaClient implements OnModuleInit {
         },
         include: {
           profile: true,
-          role: true,
+          role: {
+          include: {
+            permissions: { include: { permission: true } }
+          }
+        }
         },
       });
 
+      const scopes = user.role.permissions.map(rp => rp.permission.name);
 
 
       const newUser = {
-        id:user.id,
+        id: user.id,
         email,
-        roleId
+        role:user.role.name,
+        scopes
       }
 
-     
+
       return {
         message: 'Usuario registrado correctamente',
         newUser,
@@ -124,44 +130,55 @@ export class AuthService extends PrismaClient implements OnModuleInit {
 
     } catch (error) {
       throw new RpcException({
-        status:400,
+        status: 400,
         message: error.message
       })
     }
   }
 
-  async logiUser(loginUserDto: LoginUserDto){
-    const {email, password} = loginUserDto;
+  async logiUser(loginUserDto: LoginUserDto) {
+    const { email, password } = loginUserDto;
 
+    // 1️⃣ Traer usuario junto con rol y permisos
     const user = await this.user.findUnique({
-      where: {
-        email
+      where: { email },
+      include: {
+        role: {
+          include: {
+            permissions: { include: { permission: true } }
+          }
+        }
       }
     });
 
-    if(!user){
-      throw new RpcException({
-        status: 400,
-        message: 'Email/Password invalidos'
-      })
+    if (!user || !brcypt.compareSync(password, user.password)) {
+      throw new RpcException({ status: 400, message: 'Email/Password inválidos' });
     }
 
-    const isPasswordValid = brcypt.compareSync(password, user.password);
+    // 2️⃣ Extraer scopes de todos los permisos asociados
+    const scopes = user.role.permissions.map(rp => rp.permission.name);
 
-    if(!isPasswordValid){
-      throw new RpcException({
-        status:400,
-        message: 'Email/Password invalidos'
-      })
-    }
+    // 3️⃣ Construir el payload del JWT
+    const payload: JwtPayload = {
+      id: user.id,
+      email: user.email,
+      scopes,           // [ 'articulos:module', 'articulos:ver', ... ]
+      role: user.role.name,
+    };
 
-    const {password: __, ...rest} = user;
+    // 4️⃣ Firmar el token
+    const token = await this.signJWT(payload);
 
+    // 5️⃣ Devolver usuario + scopes + token
     return {
-      user:rest,
-      token: await this.signJWT(rest)
-    }
-
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role.name,
+        scopes,               // para el frontend también es útil tenerlos directamente
+      },
+      token,
+    };
   }
 
 }

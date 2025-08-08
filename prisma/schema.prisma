@@ -22,6 +22,8 @@ model User {
   profile  UserProfile?
   createBy Int?
   estado   Boolean      @default(true)
+
+  @@map("users")
 }
 
 model UserProfile {
@@ -34,28 +36,35 @@ model UserProfile {
   phone     String?
   address   String?
   avatarUrl String?
+
+  @@map("user_profiles")
 }
 
 model Permission {
   id          Int              @id @default(autoincrement())
-  name        String           @unique
+  name        String           @unique // e.g. "articulos:create" or "articulos:module"
   description String?
-  category    String // Ej: "Artículos", "Órdenes", "Seguridad"
-  module      String? // Opcional: agrupación por módulo
+  category    String // e.g. "Artículos", "Movimientos", etc.
+  module      String? // opcional: para agrupar permisos en UI, no usado en lógica
   roles       RolePermission[]
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
+  MenuItem    MenuItem[]
+
+  @@map("permissions")
 }
 
 model Role {
   id          Int              @id @default(autoincrement())
   name        String           @unique
   description String?
-  isSystem    Boolean          @default(false) // Para roles predefinidos
+  isSystem    Boolean          @default(false)
   users       User[]
   permissions RolePermission[]
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
+
+  @@map("roles")
 }
 
 model RolePermission {
@@ -67,4 +76,20 @@ model RolePermission {
   createdAt    DateTime   @default(now())
 
   @@unique([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+/// Nuevo modelo para los items de menú dinámico
+model MenuItem {
+  id           Int        @id @default(autoincrement())
+  label        String
+  icon         String?
+  route        String     
+  order        Int
+  section      String? // p.ej. 'Home', 'Gestión General', 'Gestión Entidades'
+  permission   Permission @relation(fields: [permissionId], references: [id])
+  permissionId Int
+
+  @@unique([route])
+  @@map("menu_items")
 }

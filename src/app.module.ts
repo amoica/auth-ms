@@ -5,9 +5,10 @@ import { UserModule } from './user/user.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RolesModule } from './roles/roles.module';
 import { PermissionModule } from './permission/permission.module';
+import { MenuModule } from './menu/menu.module';
 
 @Module({
-  imports: [AuthModule, UserModule, PrismaModule, RolesModule, PermissionModule],
+  imports: [AuthModule, UserModule, PrismaModule, RolesModule, PermissionModule, MenuModule],
   controllers: [],
   providers: [],
 })
