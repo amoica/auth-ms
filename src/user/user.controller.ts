@@ -32,4 +32,9 @@ export class UserController {
   remove(@Payload() id: number) {
     return this.userService.remove(id);
   }
+
+  @MessagePattern('auth.getMe')
+  async getMe(@Payload() {userId}: {userId: number}){
+    return this.userService.getMe(userId);
+  }
 }

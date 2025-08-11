@@ -143,4 +143,26 @@ export class UserService extends PrismaClient implements OnModuleInit {
   remove(id: number) {
     return `This action removes a #${id} user`;
   }
+
+  async getMe(userId: number) {
+    const u = await this.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        role: { select: { name: true } },
+        profile: { select: { firstName: true, lastName: true, avatarUrl: true } },
+      },
+    });
+    if (!u) return null;
+
+    return {
+      id: u.id,
+      email: u.email,
+      role: u.role?.name || null,
+      firstName: u.profile?.firstName || '',
+      lastName: u.profile?.lastName || '',
+      avatarUrl: u.profile?.avatarUrl || null,
+    };
+  }
 }

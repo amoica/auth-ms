@@ -210,7 +210,7 @@ async function main() {
   // 4. Crear MenuItems vinculados a permisos “module” y secciones
   const menuItems = [
     { label: 'Dashboard',           route: '/',                            icon: 'pi pi-fw pi-home',                   order: 1,  key: 'dashboard:module',          section: 'Home' },
-    { label: 'Movimientos',         route: '/movimientos',                icon: 'pi pi-fw pi-arrow-right-arrow-left', order: 2,  key: 'movimientos:module',        section: 'Gestión General' },
+    { label: 'Movimientos',         route: 'gestion-articulos/movimientos',                icon: 'pi pi-fw pi-arrow-right-arrow-left', order: 2,  key: 'movimientos:module',        section: 'Gestión General' },
     { label: 'Stock',               route: '/gestion-articulos/stock',    icon: 'pi pi-fw pi-objects-column',         order: 3,  key: 'articulos:module',         section: 'Gestión General' },
     { label: 'Pedidos',             route: '/gestion-general/pedidos',    icon: 'pi pi-fw pi-clipboard',              order: 4,  key: 'ordenes_compra:module',     section: 'Gestión General' },
     { label: 'Artículos',           route: '/gestion-articulos/articulo', icon: 'pi pi-fw pi-box',                    order: 5,  key: 'articulos:module',         section: 'Gestión Entidades' },
@@ -221,7 +221,7 @@ async function main() {
     { label: 'Proveedores',         route: '/gestion-proveedor/proveedor', icon: 'pi pi-fw pi-truck',                  order: 10, key: 'proveedores:module',       section: 'Gestión Entidades' },
     { label: 'Usuarios',            route: '/gestion-usuarios/users',      icon: 'pi pi-fw pi-user',                   order: 11, key: 'seguridad:module',         section: 'Seguridad' },
     { label: 'Roles y permisos',    route: '/gestion-roles-permisos/roles',icon: 'pi pi-fw pi-shield',                 order: 12, key: 'seguridad:module',         section: 'Seguridad' },
-    { label: 'Reportes',            route: '/reportes',                    icon: 'pi pi-fw pi-chart-bar',              order: 13, key: 'reportes:module',         section: 'Reportes' },
+    { label: 'Reportes',            route: 'gestion-reportes/reportes',                    icon: 'pi pi-fw pi-chart-bar',              order: 13, key: 'reportes:module',         section: 'Reportes' },
   ];
 
   for (const item of menuItems) {

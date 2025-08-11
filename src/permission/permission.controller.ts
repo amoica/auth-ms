@@ -6,7 +6,7 @@ import { UpdatePermissionDto } from './dto/update-permission.dto';
 
 @Controller()
 export class PermissionController {
-  constructor(private readonly permissionService: PermissionService) {}
+  constructor(private readonly permissionService: PermissionService) { }
 
   @MessagePattern('createPermission')
   create(@Payload() createPermissionDto: CreatePermissionDto) {
@@ -34,7 +34,18 @@ export class PermissionController {
   }
 
   @MessagePattern('getPermissionByRole')
-  getPermissionsByRole(@Payload() roleId: number){
+  getPermissionsByRole(@Payload() roleId: number) {
     return this.permissionService.getPermissionsByRole(roleId);
+  }
+
+  @MessagePattern('getPermissionByUser')
+  getPermissionByUser(@Payload() { userId }: { userId: number }) {
+    return this.permissionService.findByUser(userId); // => string[] | {route: string}[]
+  }
+
+  // Por nombre de rol
+  @MessagePattern('getPermissionByRoleName')
+  getPermissionByRoleName(@Payload() { role }: { role: string }) {
+    return this.permissionService.findByRoleName(role);
   }
 }
